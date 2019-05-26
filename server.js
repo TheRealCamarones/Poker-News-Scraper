@@ -3,6 +3,13 @@ var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
+// require what we need to scrape
+var axios = require("axios");
+var cheerio = require("cheerio");
+
+// lets get all the models in here
+var db = require("./models");
+
 // line for heroku deployment, makes sure it finds an open port
 var PORT = process.env.PORT || 3000;
 
@@ -10,7 +17,6 @@ var PORT = process.env.PORT || 3000;
 var app = express();
 
 // set up the middleware
-
 app.use(logger("dev"));
 
 app.use(express.urlencoded({ extended: true }));
@@ -29,3 +35,9 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser : true });
 app.listen(PORT, function() {
     console.log(`App running on port ${PORT}!`)
 });
+
+// Routing
+// Start with a GET route to scrape Pokerlistings website
+app.get("/scrape", function(req, res) {
+    
+})
