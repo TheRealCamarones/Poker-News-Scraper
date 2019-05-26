@@ -19,8 +19,7 @@ var ArticleSchema = new Schema({
     },
     // I'm thinking you'd store an img's src tag the same way you store a link's href, so we'll call this a string for now
     image: {
-        type: String,
-        required: true
+        type: String
     },
     // as they showed us in class, ref links to the Note model
     // and populates each article with a Note
