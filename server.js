@@ -31,11 +31,6 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 // fun line from class to make sure the connection is parsed through a non deprecated version
 mongoose.connect(MONGODB_URI, { useNewUrlParser : true });
 
-// and then have the server listen
-app.listen(PORT, function() {
-    console.log(`App running on port ${PORT}!`)
-});
-
 // Routing
 // Start with a GET route to scrape Pokerlistings website
 app.get("/scrape", function(req, res) {
@@ -77,4 +72,49 @@ app.get("/scrape", function(req, res) {
         // send message to client
         res.send("Scrape Complete");
     });
-})
+});
+
+// route to grab the articles from db
+app.get("/articles", function(req, res) {
+  db.Article.find({})
+    .then(function(dbArticle) {
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
+// route for grabbing article by id, populate it with the associated note
+app.get("/articles/:id", function(req, res) {
+  db.Article.findOne({ _id: req.params.id })
+  // populate all notes
+    .populate("note")
+    .then(function(dbArticle) {
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
+// route that will save and update a specific article's note
+app.post("/articles/:id", function(req, res) {
+  // create a new note and pass it the req.body
+  db.Note.create(req.body)
+    .then(function(dbNote) {
+      // mongoose query, finds and updates the specific article's id with the associated note
+      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+    })
+    .then(function(dbArticle) {
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
+// and then have the server listen
+app.listen(PORT, function() {
+  console.log(`App running on port ${PORT}!`)
+});
