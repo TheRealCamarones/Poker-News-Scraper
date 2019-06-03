@@ -1,0 +1,26 @@
+<div class="container">
+    <div class="jumbotron">
+        <img src="/assets/img/poker-hands.jpg" class="center-block" alt="poker image">
+        <h1>All the Poker News That's Fit to Scrape</h1>
+        <a href="/scrape"><button type="button" class="btn-primary scrape-button">Scrape Articles</button></a>
+    </div>
+
+    <div class="articles">
+
+        {{log articles}}
+
+        {{#each articles}}
+        <div class="row">
+            <div class="card" >
+                <div class="card-body">
+                    <h5 class="card-title">{{this.title}}</h5>
+                    <p class="card-text">{{this.summary}}</p>
+                    <a href="{{this.link}}" class="card-link" target="_blank">Article link</a>
+                    <a href="/note" class="card-link"><button type="button" class="note-button">Leave a Note</button></a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+
+    </div>
+</div>

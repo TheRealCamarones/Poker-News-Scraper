@@ -1,5 +1,6 @@
 // boilerplate to connect to the server and make the connection to the mongoose db
 var express = require("express");
+var exphbs = require("express-handlebars");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
@@ -8,13 +9,18 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 
 // lets get all the models in here
-var db = require("./models");
+var Article = require("./models/Article");
+var Note = require("./models/Note")
 
 // line for heroku deployment, makes sure it finds an open port
 var PORT = process.env.PORT || 3000;
 
 // initialize Express
 var app = express();
+
+// include handlebars
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
 
 // set up the middleware
 app.use(logger("dev"));
@@ -60,7 +66,7 @@ app.get("/scrape", function(req, res) {
               .children("img")
               .attr("src");
 
-            db.Article.create(result)
+            Article.create(result)
               .then(function(dbArticle) {
                   console.log(dbArticle);
               })
@@ -76,9 +82,11 @@ app.get("/scrape", function(req, res) {
 
 // route to grab the articles from db
 app.get("/", function(req, res) {
-  db.Article.find({})
+  
+  Article.find({})
     .then(function(dbArticle) {
-      res.json(dbArticle);
+      console.log(dbArticle);
+      res.render("index", { articles: dbArticle});
     })
     .catch(function(err) {
       res.json(err);
@@ -87,7 +95,7 @@ app.get("/", function(req, res) {
 
 // route for grabbing article by id, populate it with the associated note
 app.get("/articles/:id", function(req, res) {
-  db.Article.findOne({ _id: req.params.id })
+  Article.findOne({ _id: req.params.id })
   // populate all notes
     .populate("note")
     .then(function(dbArticle) {
@@ -101,10 +109,10 @@ app.get("/articles/:id", function(req, res) {
 // route that will save and update a specific article's note
 app.post("/articles/:id", function(req, res) {
   // create a new note and pass it the req.body
-  db.Note.create(req.body)
+  Note.create(req.body)
     .then(function(dbNote) {
       // mongoose query, finds and updates the specific article's id with the associated note
-      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+      return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
     })
     .then(function(dbArticle) {
       res.json(dbArticle);
