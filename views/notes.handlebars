@@ -1,0 +1,17 @@
+<div class="container">
+    <div class="jumbotron">
+        <h2>Notes page getting a signal</h2>
+        <div>
+        {{#each articles}}
+
+        {{log articles}}
+        {{log articles.title}}
+        <h2>{{articles.title}}</h2>
+        <h3>{{this.summary}}</h3>
+        <h3><a href="{{this.link}}" target="blank"></a></h3><hr>
+        <button type="button" data-id="{{this._id}}" class="btn btn-warning" id="add-note" data-toggle="modal" data-target="#noteModal">Add Note</button>
+        <a href="/"> <button type="button" class="btn btn-primary save-article" >Back to Articles</button> </a>
+        {{/each}}
+        </div>
+    </div>
+</div>

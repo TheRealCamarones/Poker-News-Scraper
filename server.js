@@ -12,6 +12,11 @@ var cheerio = require("cheerio");
 var Article = require("./models/Article");
 var Note = require("./models/Note")
 
+// two global variables to simplify the passing of information to handlebars
+
+var noteObject;
+var articleObject;
+
 // line for heroku deployment, makes sure it finds an open port
 var PORT = process.env.PORT || 3000;
 
@@ -76,7 +81,8 @@ app.get("/scrape", function(req, res) {
         });
 
         // send message to client
-        res.send("Scrape Complete");
+        res.redirect("/");
+        console.log("Successfully Completed Scrape!")
     });
 });
 
@@ -86,7 +92,8 @@ app.get("/", function(req, res) {
   Article.find({})
     .then(function(dbArticle) {
       console.log(dbArticle);
-      res.render("index", { articles: dbArticle});
+      articleObject = dbArticle;
+      res.render("index", { articles: articleObject });
     })
     .catch(function(err) {
       res.json(err);
@@ -94,12 +101,15 @@ app.get("/", function(req, res) {
 });
 
 // route for grabbing article by id, populate it with the associated note
-app.get("/articles/:id", function(req, res) {
+app.get("/notes/:id", function(req, res) {
   Article.findOne({ _id: req.params.id })
   // populate all notes
-    .populate("note")
-    .then(function(dbArticle) {
-      res.json(dbArticle);
+    .populate("notes")
+    .then(function(articleNote) {
+      console.log(articleNote)
+      noteObject = articleNote;
+      res.render("notes", { articles: articleObject, note: noteObject });
+      console.log(noteObject, articleObject)
     })
     .catch(function(err) {
       res.json(err);
@@ -107,12 +117,12 @@ app.get("/articles/:id", function(req, res) {
 });
 
 // route that will save and update a specific article's note
-app.post("/articles/:id", function(req, res) {
+app.post("/notes/:id", function(req, res) {
   // create a new note and pass it the req.body
   Note.create(req.body)
     .then(function(dbNote) {
       // mongoose query, finds and updates the specific article's id with the associated note
-      return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+      return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote.body }, { new: true });
     })
     .then(function(dbArticle) {
       res.json(dbArticle);

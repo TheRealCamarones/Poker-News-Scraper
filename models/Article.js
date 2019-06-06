@@ -7,6 +7,8 @@ var Schema = mongoose.Schema;
 var ArticleSchema = new Schema({
     title: {
         type: String,
+        // maybe the easiest way to make each entry unique is to just compare titles
+        unique: true,
         required: true
     },
     summary: {
